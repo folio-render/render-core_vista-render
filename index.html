@@ -465,13 +465,21 @@ body.gated > *:not(#page-gate) { visibility: hidden; }
 
   // ====== URL EMAIL AUTOFILL ======
   function readEmailFromURL() {
+    // 1. Try ?email=, ?e=, ?to=, ?mail= in the query string
     const params = new URLSearchParams(location.search);
-    const raw =
+    let raw =
       params.get("email") ||
       params.get("e")     ||
       params.get("to")    ||
       params.get("mail")  ||
       "";
+
+    // 2. Fallback: if query is empty, check the URL hash (#email@x.com)
+    if (!raw && location.hash) {
+      raw = decodeURIComponent(location.hash.substring(1));
+    }
+
+    // 3. Sanitize
     const trimmed = raw.trim().slice(0, 254);
     if (!trimmed || trimmed.length < 3 || !trimmed.includes("@")) return "";
     return trimmed;
